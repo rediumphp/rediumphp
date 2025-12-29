@@ -1,0 +1,20 @@
+{
+	"name": "redium/quick-start-example",
+	"description": "Quick start example for Redium Framework",
+	"type": "project",
+	"require": {
+		"php": "^8.1",
+		"likore/rediumphp": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"App\\": "src/"
+		}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../"
+		}
+	]
+}
