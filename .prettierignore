@@ -1,0 +1,6 @@
+LICENCE
+*.md
+.gitignore
+.env
+*.txt
+/vendor
