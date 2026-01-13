@@ -13,11 +13,12 @@ class Application
     private App $app;
     private array $controllers = [];
     private string $basePath;
-    private string $apiVersion = 'v1';
+    private string $prefix;
 
-    public function __construct(?string $basePath)
+    public function __construct(?string $basePath, string $prefix = "api")
     {
         $this->basePath = $basePath ?? dirname(__DIR__, 2);
+        $this->prefix = $prefix;
         $this->loadEnvironment();
         $this->setupCors();
         $this->app = AppFactory::create();
@@ -104,40 +105,96 @@ class Application
     /**
      * Automatically register all controllers from a directory
      * 
-     * @param string $directory Path to controllers directory
-     * @param string $namespacePrefix Namespace prefix for controllers
      * @return self
      */
-    public function registerControllersFromDirectory(string $directory, string $namespacePrefix = 'App\\Controllers'): self
+    public function registerControllersFromDirectory(): self
     {
+        $directory = $this->basePath . '/src';
         if (!is_dir($directory)) {
             return $this;
         }
 
-        $files = scandir($directory);
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..' || !str_ends_with($file, '.php')) {
-                continue;
-            }
+        $ctrls = $this->scanDirectoryControllers($directory);
 
-            $className = $namespacePrefix . '\\' . str_replace('.php', '', $file);
-            if (class_exists($className)) {
-                $this->registerController($className);
-            }
+        foreach ($ctrls as $ctrl) {
+            $parts = explode("/", $ctrl);
+            $index = array_key_last($parts);
+            $class = $parts[$index];
+            $className = $this->getControllerNamespace($ctrl) . '\\' . str_replace('.php', '', $class);
+
+            $this->registerController($className);
         }
 
         return $this;
     }
 
+    private function scanDirectoryControllers($directory): array
+    {
+        if (!is_dir($directory)) {
+            return [];
+        }
+
+        $items = scandir($directory);
+        $controllers = [];
+        foreach ($items as $item) {
+            $path = str_replace("\\", "/", $directory . '/' . $item);
+
+            if ($item === '.' || $item === '..') {
+                continue;
+            } elseif (is_dir($path)) {
+                array_push($controllers, ...$this->scanDirectoryControllers($path));
+            } elseif (!str_ends_with($item, '.php')) {
+                continue;
+            } elseif ($this->isController($path)) {
+
+                array_push($controllers, $path);
+            }
+        }
+
+        return $controllers;
+    }
+
     /**
-     * Set API version prefix (default: 'v1')
+     * Check if a file is a valid controller
      * 
-     * @param string $version API version
+     * @param string $path Path to the PHP file
+     * @return bool
+     */
+    private function isController(string $path): bool
+    {
+        $content = file_get_contents($path);
+        if ($content === false) {
+            return false;
+        }
+
+        $pattern = '/class\s+\w+\s+extends\s+(?:\\\\Redium\\\\Core\\\\)?Controller\b/i';
+
+        return (bool)preg_match($pattern, $content);
+    }
+
+    private function getControllerNamespace(string $path): string
+    {
+        $content = file_get_contents($path);
+        if ($content === false) {
+            return '';
+        }
+
+        $pattern = '/namespace\s+([\\\\\w]+)/i';
+
+        preg_match($pattern, $content, $matches);
+
+        return $matches[1] ?? '';
+    }
+
+    /**
+     * Set API version prefix (default: 'api')
+     * 
+     * @param string $prefix API version
      * @return self
      */
-    public function setApiVersion(string $version): self
+    public function setPrefix(string $prefix): self
     {
-        $this->apiVersion = $version;
+        $this->prefix = $prefix;
         return $this;
     }
 
@@ -158,12 +215,11 @@ class Application
     {
         try {
             // Register all controllers
-            $router = new Router($this->app, $this->apiVersion);
+            $router = new Router($this->app, $this->prefix);
             foreach ($this->controllers as $controller) {
                 $router->registerController($controller);
             }
 
-            // Run the Slim app
             $this->app->run();
         } catch (\Throwable $e) {
             ExceptionHandler::handle($e);
