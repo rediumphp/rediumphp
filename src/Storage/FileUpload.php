@@ -8,7 +8,7 @@ class FileUpload
     private array $allowedExtensions = [];
     private int $maxFileSize = 5242880; // 5MB default
 
-    public function __construct(?string $uploadDir)
+    public function __construct(string $uploadDir = null)
     {
         $this->uploadDir = $uploadDir ?? dirname(__DIR__, 2) . '/storage/uploads';
         
