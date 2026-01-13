@@ -1,23 +1,23 @@
 # Redium Framework
 
-A lightweight, modern PHP framework for rapid API development, extracted from production-tested patterns.
+A lightweight, modern PHP framework for rapid API development, based on our production-tested patterns
 
 ## Features
 
-✨ **Attribute-Based Routing** - Clean, declarative route definitions using PHP 8+ attributes  
-🔐 **Built-in JWT Authentication** - Token-based auth with permission system  
-🗄️ **Robust ORM** - Full-featured Entity system with relationships, casting, and dirty tracking  
-📦 **Query Builder** - Fluent interface for complex database queries  
-✅ **Validation System** - 10+ validation rules with database uniqueness checks  
-💾 **Caching Layer** - File-based caching with TTL and remember pattern  
-📡 **Event System** - Event-driven architecture with priority listeners  
-📤 **File Upload Handler** - Comprehensive file management with validation  
-🛡️ **Rate Limiting** - IP-based API protection and throttling  
-📊 **Collection Class** - Powerful array manipulation for entities  
-🎯 **Response Helpers** - Standardized API responses  
-⚡ **Auto Parameter Injection** - Automatic injection of request data into controller methods  
-🛡️ **Type-Safe** - Full PHP 8.1+ type safety throughout  
-🎯 **Zero Configuration** - Works out of the box with sensible defaults
+**Attribute-Based Routing** - Clean, declarative route definitions using PHP 8+ attributes  
+**Built-in JWT Authentication** - Token-based auth with permission system  
+**Robust ORM** - Full-featured Entity system with relationships, casting, and dirty tracking  
+**Query Builder** - Fluent interface for complex database queries  
+**Validation System** - 10+ validation rules with database uniqueness checks  
+**Caching Layer** - File-based caching with TTL and remember pattern  
+**Event System** - Event-driven architecture with priority listeners  
+**File Upload Handler** - Comprehensive file management with validation  
+**Rate Limiting** - IP-based API protection and throttling  
+**Collection Class** - Powerful array manipulation for entities  
+**Response Helpers** - Standardized API responses  
+**Auto Parameter Injection** - Automatic injection of request data into controller methods  
+**Type-Safe** - Full PHP 8.1+ type safety throughout  
+**Zero Configuration** - Works out of the box with sensible defaults
 
 ## Installation
 

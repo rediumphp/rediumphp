@@ -5,3 +5,7 @@ composer.lock
 .vscode/
 *.log
 .DS_Store
+
+examples/
+.help/
+docs/
