@@ -3,7 +3,6 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 use Redium\Core\Application;
-use App\Controllers\UserController;
 
 // Create and configure application
 $app = new Application(__DIR__);

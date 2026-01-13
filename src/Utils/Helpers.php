@@ -8,19 +8,6 @@
 
 use Ramsey\Uuid\Uuid;
 
-if (!function_exists('getBody')) {
-    /**
-     * Parse JSON request body
-     * 
-     * @return array Parsed JSON data as associative array
-     */
-    function getBody(): array
-    {
-        $json = file_get_contents("php://input");
-        return json_decode($json, true) ?? [];
-    }
-}
-
 if (!function_exists('writeBody')) {
     /**
      * Format data as JSON response
@@ -55,7 +42,7 @@ if (!function_exists('throwError')) {
         array $trace = []
     ): void {
         header("HTTP/1.1 {$code} {$title}");
-        
+
         $response = [
             "code" => $code,
             "error" => $title,
@@ -100,11 +87,11 @@ if (!function_exists('generateRandomSerialNumber')) {
     {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $serial = '';
-        
+
         for ($i = 0; $i < $length; $i++) {
             $serial .= $characters[random_int(0, strlen($characters) - 1)];
         }
-        
+
         return $serial;
     }
 }
@@ -167,29 +154,15 @@ if (!function_exists('getIpAddress')) {
     }
 }
 
-if (!function_exists('callGet')) {
-    /**
-     * Make HTTP GET request (Deprecated: use HttpClient::get)
-     * 
-     * @param string $url Target URL
-     * @return array Response data
-     */
-    function callGet(string $url): array
-    {
-        return \Redium\Http\HttpClient::get($url);
-    }
-}
 
-if (!function_exists('callPost')) {
+if (!function_exists('var_die')) {
     /**
-     * Make HTTP POST request (Deprecated: use HttpClient::post)
      * 
-     * @param string $url Target URL
-     * @param array $body Request body data
-     * @return array Response data
+     * @return void
      */
-    function callPost(string $url, array $body): array
+    function var_die(mixed ...$values): void
     {
-        return \Redium\Http\HttpClient::post($url, $body);
+        var_dump(...$values);
+        die();
     }
 }
