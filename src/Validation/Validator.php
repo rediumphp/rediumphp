@@ -2,8 +2,6 @@
 
 namespace Redium\Validation;
 
-use InvalidArgumentException;
-
 class Validator
 {
     private array $errors = [];
@@ -117,14 +115,14 @@ class Validator
     }
 
     /**
-     * Check if value is unique in database
+     * Check if the value is unique in database
      */
     private function checkUnique(string $table, string $column, $value): bool
     {
         if (!$value) return false;
 
         try {
-            $pdo = \Redium\Database\Connection::getInstance();
+            $pdo = \Redium\Database\Connection::getPdo();
             $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM {$table} WHERE {$column} = ?");
             $stmt->execute([$value]);
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);

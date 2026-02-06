@@ -2,34 +2,36 @@
 
 namespace Redium\Core;
 
-use Slim\App;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
-use ReflectionClass;
-use ReflectionException;
-use Redium\Attributes\Route;
 use Redium\Auth\AuthService;
 use Redium\Auth\Exceptions\UnauthenticatedException;
 use Redium\Auth\Exceptions\UnauthorizedException;
+use Redium\Core\Attributes\Route;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use Slim\App;
+use Slim\Psr7\Request;
+use Slim\Psr7\Response;
 
 class Router
 {
     private App $app;
-    private string $apiVersion;
     private AuthService $authService;
 
-    public function __construct(App $app, string $apiVersion = 'v1')
+    public function __construct(App $app, private string $prefix = "api")
     {
         $this->app = $app;
-        $this->apiVersion = $apiVersion;
+        $this->prefix = $prefix;
         $this->authService = new AuthService();
     }
 
     /**
      * Register a controller and its routes
-     * 
+     *
      * @param string $controllerClass Fully qualified controller class name
      * @throws ReflectionException
+     * @throws UnauthenticatedException
+     * @throws UnauthorizedException
      */
     public function registerController(string $controllerClass): void
     {
@@ -42,7 +44,6 @@ class Router
             $prefix = $attributes[0]->newInstance()->getPath();
         }
 
-        // Register each method with Route attribute
         foreach ($class->getMethods() as $method) {
             $routeAttributes = $method->getAttributes(Route::class);
             
@@ -55,31 +56,23 @@ class Router
                 $route = $routeAttribute->newInstance();
 
                 $httpMethod = $route->getMethod();
-                $fullPath = "/{$this->apiVersion}" . $prefix . $route->getPath();
+                $fullPath = "/$this->prefix" . $prefix . $route->getPath();
 
-                // Register route with Slim
                 $this->app->$httpMethod($fullPath, function (Request $request, Response $response, array $args) 
                     use ($method, $controllerClass, $route) {
-                    
-                    // Handle authentication and permissions
+
                     $permission = $route->getPermission();
                     
-                    if ($permission !== "none") {
-                        $this->handleAuthentication($request, $permission);
-                    }
+                    if ($permission !== "none") $this->handleAuthentication($request, $permission);
 
-                    // Parse request body
                     $body = (array) json_decode($request->getBody()->getContents(), true);
                     $queryParams = self::getUrlParams($request->getServerParams()['REQUEST_URI'] ?? '');
 
-                    // Build method parameters
                     $params = $this->buildMethodParameters($method, $request, $response, $args, $body, $queryParams);
 
-                    // Call controller method
                     $controllerInstance = new $controllerClass();
                     $result = call_user_func_array([$controllerInstance, $method->getName()], $params);
 
-                    // Write response
                     if ($result !== null) {
                         $response->getBody()->write(writeBody($result));
                     }
@@ -154,7 +147,7 @@ class Router
     /**
      * Build method parameters from request data
      * 
-     * @param \ReflectionMethod $method
+     * @param ReflectionMethod $method
      * @param Request $request
      * @param Response $response
      * @param array $args Path parameters
@@ -163,7 +156,7 @@ class Router
      * @return array
      */
     private function buildMethodParameters(
-        \ReflectionMethod $method,
+        ReflectionMethod $method,
         Request $request,
         Response $response,
         array $args,

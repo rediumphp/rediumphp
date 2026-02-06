@@ -2,20 +2,18 @@
 
 namespace Redium\ORM;
 
-use PDO;
-use ReflectionClass;
-use ReflectionProperty;
 use Redium\Database\Connection;
 use Redium\Database\QueryBuilder;
-use Redium\Attributes\Table;
-use Redium\Attributes\Column;
-use Symfony\Component\Serializer\Serializer;
+use Redium\ORM\Attributes\Column;
+use Redium\ORM\Attributes\Table;
+use ReflectionClass;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 abstract class Entity
 {
@@ -125,7 +123,7 @@ abstract class Entity
         
         if ($result) {
             $this->exists = true;
-            $pdo = Connection::getInstance();
+            $pdo = Connection::getPdo();
             $lastId = $pdo->lastInsertId();
             if ($lastId) {
                 $this->setPrimaryKey($lastId);

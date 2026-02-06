@@ -1,6 +1,6 @@
 <?php
 
-namespace Redium\Attributes;
+namespace Redium\ORM\Attributes;
 
 use Attribute;
 
@@ -8,7 +8,7 @@ use Attribute;
 class Table
 {
     public function __construct(
-        private string $name
+        private readonly ?string $name
     ) {}
 
     public function getName(): string

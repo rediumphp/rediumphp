@@ -12,7 +12,7 @@ abstract class Model implements ModelInterface
 
     public function __construct()
     {
-        self::$connection = Connection::getInstance();
+        self::$connection = Connection::getPdo();
     }
 
     /**

@@ -75,9 +75,7 @@ class Product extends Model
 <?php
 namespace App\Controllers;
 
-use Redium\Core\Controller;
-use Redium\Attributes\Route;
-use App\Models\Product;
+use App\Models\Product;use Redium\Core\Attributes\Route;use Redium\Core\Controller;
 
 #[Route("/products")]
 class ProductController extends Controller
@@ -390,7 +388,7 @@ ALLOWED_URLS=http://localhost:3000,http://localhost:8000
 ### 1. Use Services for Business Logic
 
 ```php
-// ❌ Don't put logic in controllers
+// Don't put logic in controllers
 #[Route("/create", "POST")]
 public function create(array $data): array
 {
@@ -400,7 +398,7 @@ public function create(array $data): array
     // ... more logic
 }
 
-// ✅ Use services
+// Use services
 #[Route("/create", "POST")]
 public function create(array $data): array
 {
@@ -421,10 +419,10 @@ public function create(array $data): array
 ### 3. Use View Projections
 
 ```php
-// ❌ Don't expose sensitive data
+// Don't expose sensitive data
 $users = $this->userModel->findAll(); // Includes passwords!
 
-// ✅ Select only needed fields
+// Select only needed fields
 $users = $this->userModel->findAll('id, name, email, role');
 ```
 
