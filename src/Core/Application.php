@@ -7,15 +7,12 @@ use Slim\Factory\AppFactory;
 use Dotenv\Dotenv;
 use Redium\Utils\Config;
 
-
 class Application
 {
     private App $app;
     private array $controllers = [];
-    private string $basePath;
-    private string $prefix;
 
-    public function __construct(?string $basePath, string $prefix = "api")
+    public function __construct(private ?string $basePath, private string $prefix = "api")
     {
         $this->basePath = $basePath ?? dirname(__DIR__, 2);
         $this->prefix = $prefix;
@@ -65,12 +62,10 @@ class Application
         header("Access-Control-Allow-Methods: " . Config::get('cors.allowed_methods'));
         header("Access-Control-Allow-Headers: " . Config::get('cors.allowed_headers'));
 
-        // Handle preflight requests
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             exit(0);
         }
 
-        // Set content type for non-dev environments
         if ($env !== 'dev') {
             header('Content-Type: application/json');
         }
@@ -89,25 +84,11 @@ class Application
     }
 
     /**
-     * Register multiple controllers
-     * 
-     * @param array $controllers Array of controller class names
-     * @return self
-     */
-    public function registerControllers(array $controllers): self
-    {
-        foreach ($controllers as $controller) {
-            $this->registerController($controller);
-        }
-        return $this;
-    }
-
-    /**
      * Automatically register all controllers from a directory
      * 
      * @return self
      */
-    public function registerControllersFromDirectory(): self
+    public function registerControllers(): self
     {
         $directory = $this->basePath . '/src';
         if (!is_dir($directory)) {
@@ -214,8 +195,7 @@ class Application
     public function run(): void
     {
         try {
-            // Register all controllers
-            $router = new Router($this->app, $this->prefix);
+            $router = new Router($this->app);
             foreach ($this->controllers as $controller) {
                 $router->registerController($controller);
             }

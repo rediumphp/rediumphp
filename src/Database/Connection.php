@@ -4,25 +4,26 @@ namespace Redium\Database;
 
 use PDO;
 use PDOException;
+use PDOStatement;
 
 class Connection
 {
-    private static ?PDO $instance = null;
+    private static ?PDO $pdo = null;
 
     /**
      * Get singleton PDO connection instance
      */
-    public static function getInstance(): PDO
+    public static function getPdo(): PDO
     {
-        if (self::$instance === null) {
-            self::$instance = self::createConnection();
+        if (self::$pdo === null) {
+            self::$pdo = self::createConnection();
         }
 
-        return self::$instance;
+        return self::$pdo;
     }
 
     /**
-     * Create new PDO connection from environment variables
+     * Create a new PDO connection from environment variables
      */
     private static function createConnection(): PDO
     {
@@ -32,16 +33,14 @@ class Connection
         $password = $_ENV['DB_PASSWORD'] ?? '';
         $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
-        $dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
         try {
-            $pdo = new PDO($dsn, $user, $password, [
+            return new PDO($dsn, $user, $password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
-
-            return $pdo;
         } catch (PDOException $e) {
             throw new PDOException("Database connection failed: " . $e->getMessage());
         }
@@ -52,13 +51,13 @@ class Connection
      */
     public static function reset(): void
     {
-        self::$instance = null;
+        self::$pdo = null;
     }
 
     /**
      * Fetch single row from PDOStatement
      */
-    public static function fetch(\PDOStatement $statement): ?array
+    public static function fetch(PDOStatement $statement): ?array
     {
         $response = $statement->fetch(PDO::FETCH_ASSOC);
         return $response ?: null;
@@ -67,7 +66,7 @@ class Connection
     /**
      * Fetch all rows from PDOStatement
      */
-    public static function fetchAll(\PDOStatement $statement): array
+    public static function fetchAll(PDOStatement $statement): array
     {
         $response = $statement->fetchAll(PDO::FETCH_ASSOC);
         return $response ?: [];

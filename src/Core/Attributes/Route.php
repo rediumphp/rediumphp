@@ -1,6 +1,6 @@
 <?php
 
-namespace Redium\Attributes;
+namespace Redium\Core\Attributes;
 
 use Attribute;
 

@@ -15,7 +15,7 @@ class QueryBuilder
 
     public function __construct(string $table)
     {
-        $this->connection = Connection::getInstance();
+        $this->connection = Connection::getPdo();
         $this->table = $table;
     }
 
